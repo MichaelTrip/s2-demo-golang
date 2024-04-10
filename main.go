@@ -55,11 +55,11 @@ func init() {
 	}
 
 	// Create the static directory if it doesn't exist
-	if _, err := os.Stat("static"); os.IsNotExist(err) {
-		if err := os.Mkdir("static", 0755); err != nil {
-			log.Fatal(err)
-		}
-	}
+	// if _, err := os.Stat("static"); os.IsNotExist(err) {
+	// 	if err := os.Mkdir("static", 0755); err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// }
 }
 
 func clientIP(r *http.Request) string {
@@ -91,13 +91,13 @@ func downloadFile(url string, filepath string) error {
 	return err
 }
 
-func deleteStaticDir() {
-	if _, err := os.Stat("static"); !os.IsNotExist(err) {
-		if err := os.RemoveAll("static"); err != nil {
-			log.Println(err)
-		}
-	}
-}
+// func deleteStaticDir() {
+// 	if _, err := os.Stat("static"); !os.IsNotExist(err) {
+// 		if err := os.RemoveAll("static"); err != nil {
+// 			log.Println(err)
+// 		}
+// 	}
+// }
 
 func getVersion() string {
 	if commit == "" {
@@ -110,7 +110,7 @@ func main() {
 	log.SetOutput(os.Stdout) // Set log output to stdout
 
 	// Download the Kubernetes logo
-	if err := downloadFile(logoURL, "static/logo.svg"); err != nil {
+	if err := downloadFile(logoURL, "logo.svg"); err != nil {
 		log.Fatal(err)
 	}
 	// Handle stop signal to delete the static directory
@@ -119,7 +119,7 @@ func main() {
 	go func() {
 		<-sigCh
 		log.Println("Received stop signal. Deleting static directory...")
-		deleteStaticDir()
+		// deleteStaticDir()
 		os.Exit(0)
 	}()
 
@@ -138,10 +138,10 @@ func main() {
 		fmt.Fprintf(w, "</ul><p>Quote of the day:</p><blockquote>%s</blockquote></body></html>", quote)
 	})
 
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./"))))
 
 	http.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "static/logo.svg")
+		http.ServeFile(w, r, "/static/logo.svg")
 	})
 
 	log.Printf("Starting server on %s...\n", addr)
